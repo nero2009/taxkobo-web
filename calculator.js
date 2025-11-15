@@ -37,10 +37,112 @@ const conversionCTA = document.getElementById('conversion-cta');
 const vatNotice = document.getElementById('vat-notice');
 const tryExampleBtn = document.getElementById('try-example-btn');
 
+// CBN Exchange Rate API
+const CBN_API_URL = 'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://www.cbn.gov.ng/api/GetAllExchangeRatesGRAPH');
+const CBN_RATES_URL = 'https://www.cbn.gov.ng/rates/ExchRateByCurrency.html';
+
+// Cache for exchange rates (to avoid excessive API calls)
+let exchangeRatesCache = null;
+let cacheTimestamp = null;
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
 // Analytics helper (placeholder - replace with actual analytics)
 function trackEvent(eventName, properties = {}) {
     console.log('Analytics Event:', eventName, properties);
     // TODO: Replace with actual analytics implementation (Plausible, GA, etc.)
+}
+
+// Fetch latest exchange rates from CBN API
+async function fetchCBNRates() {
+    // Check cache first
+    if (exchangeRatesCache && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_DURATION)) {
+        console.log('Using cached exchange rates');
+        return exchangeRatesCache;
+    }
+
+    try {
+        console.log('Fetching exchange rates from CBN...');
+        const response = await fetch(CBN_API_URL);
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch exchange rates');
+        }
+
+        const data = await response.json();
+
+        // Parse and extract latest rates
+        const rates = parseLatestRates(data);
+
+        // Update cache
+        exchangeRatesCache = rates;
+        cacheTimestamp = Date.now();
+
+        trackEvent('cbn_rates_fetched', { ratesDate: rates.date });
+
+        return rates;
+    } catch (error) {
+        console.error('Error fetching CBN rates:', error);
+        trackEvent('cbn_rates_fetch_failed', { error: error.message });
+
+        // Return fallback rates
+        return getFallbackRates();
+    }
+}
+
+// Parse CBN API response to extract latest rates
+function parseLatestRates(data) {
+    // Currency mapping from CBN API names to our currency codes
+    const currencyMap = {
+        'EURO': 'EUR',
+        'US DOLLAR': 'USD',
+        'POUNDS STERLING': 'GBP'
+    };
+
+    // Group by currency and get the most recent entry
+    const latestRates = {};
+    let mostRecentDate = null;
+
+    data.forEach(entry => {
+        const currencyCode = currencyMap[entry.currency];
+
+        if (currencyCode) {
+            const entryDate = new Date(entry.ratedate);
+
+            // Track most recent date
+            if (!mostRecentDate || entryDate > mostRecentDate) {
+                mostRecentDate = entryDate;
+            }
+
+            // Update if this is the most recent for this currency
+            if (!latestRates[currencyCode] || entryDate > new Date(latestRates[currencyCode].date)) {
+                latestRates[currencyCode] = {
+                    rate: parseFloat(entry.centralrate),
+                    date: entry.ratedate,
+                    buyingRate: parseFloat(entry.buyingrate),
+                    sellingRate: parseFloat(entry.sellingrate)
+                };
+            }
+        }
+    });
+
+    return {
+        EUR: latestRates.EUR?.rate || 1710,
+        USD: latestRates.USD?.rate || 1580,
+        GBP: latestRates.GBP?.rate || 2050,
+        date: mostRecentDate ? mostRecentDate.toISOString().split('T')[0] : null,
+        source: 'CBN'
+    };
+}
+
+// Fallback rates if API fails
+function getFallbackRates() {
+    return {
+        EUR: 1710,
+        USD: 1580,
+        GBP: 2050,
+        date: null,
+        source: 'Default'
+    };
 }
 
 // Format number as Nigerian Naira
@@ -154,7 +256,7 @@ function updateNGNEquivalent() {
 }
 
 // Handle currency selection
-currencySelect.addEventListener('change', (e) => {
+currencySelect.addEventListener('change', async (e) => {
     const currency = e.target.value;
 
     trackEvent('currency_selected', { currency });
@@ -165,14 +267,35 @@ currencySelect.addEventListener('change', (e) => {
         currencyLabel.textContent = currency;
         exchangeRateInput.required = true;
 
-        // Set default exchange rates (optional - for better UX)
-        if (!exchangeRateInput.value) {
-            const defaultRates = {
-                'EUR': 1710,
-                'USD': 1580,
-                'GBP': 2050
-            };
-            exchangeRateInput.value = defaultRates[currency] || '';
+        // Clear previous value to fetch new rate
+        exchangeRateInput.value = '';
+
+        // Show loading state
+        exchangeRateInput.placeholder = 'Fetching CBN rate...';
+        exchangeRateInput.disabled = true;
+
+        try {
+            const rates = await fetchCBNRates();
+
+            // Set the rate for the selected currency
+            if (rates[currency]) {
+                exchangeRateInput.value = rates[currency];
+
+                // Update helper text to show source and date
+                const helperText = exchangeRateInput.parentElement.querySelector('.text-gray-500');
+                if (helperText && rates.source === 'CBN' && rates.date) {
+                    helperText.innerHTML = `CBN official rate as of ${rates.date}. <a href="${CBN_RATES_URL}" target="_blank" class="text-green-600 hover:text-green-700 underline">View rates →</a>`;
+                }
+            }
+        } catch (error) {
+            console.error('Error setting exchange rate:', error);
+            // Use fallback rate
+            const fallbackRates = getFallbackRates();
+            exchangeRateInput.value = fallbackRates[currency] || '';
+        } finally {
+            // Restore input state
+            exchangeRateInput.placeholder = 'e.g., 1710';
+            exchangeRateInput.disabled = false;
         }
 
         updateNGNEquivalent();
@@ -367,6 +490,13 @@ tryExampleBtn.addEventListener('click', () => {
 
 // Track page load
 trackEvent('calculator_loaded');
+
+// Pre-fetch CBN rates on page load
+fetchCBNRates().then(rates => {
+    console.log('CBN rates loaded:', rates);
+}).catch(error => {
+    console.error('Failed to pre-fetch CBN rates:', error);
+});
 
 // Initialize: Set default currency to EUR
 currencySelect.value = 'EUR';
