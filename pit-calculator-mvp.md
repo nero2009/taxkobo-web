@@ -1,7 +1,7 @@
 # PIT Calculator MVP Specification
 
 ## Overview
-A simplified Personal Income Tax calculator for Nigerian freelancers earning foreign income. Designed as a lead magnet and conversion funnel for the Nerozz SaaS platform.
+A simplified Personal Income Tax calculator for Nigerian freelancers earning foreign income. Designed as a lead magnet and conversion funnel for the TaxKobo SaaS platform.
 
 ## Target User
 Nigerian freelancer who:
@@ -199,7 +199,7 @@ professional tax advice.
 ┌─────────────────────────────────────────────────────────────┐
 │  📊 Track Your Income & Automate This Calculation           │
 │                                                             │
-│  Instead of manual calculations, let Nerozz:                │
+│  Instead of manual calculations, let TaxKobo:                │
 │  ✓ Auto-track multi-currency receipts year-round            │
 │  ✓ Calculate PIT in real-time as you earn                   │
 │  ✓ Store WHT certificates & expense receipts                │
@@ -254,7 +254,7 @@ For users who click "Save This Calculation":
 2. Calculation breakdown (expandable accordion, collapsed by default)
 3. Key metrics grid (effective rate, CRA benefit, deadline)
 4. Primary conversion CTA (track income year-round)
-5. Social share buttons (optional - "I calculated my PIT with Nerozz")
+5. Social share buttons (optional - "I calculated my PIT with TaxKobo")
 
 ---
 
@@ -395,7 +395,7 @@ Once MVP proves conversion, consider:
 - [ ] Prepare social share copy + graphics
 
 ### Launch (Mid-January 2026)
-- [ ] Deploy to production domain (e.g., nerozz.com/pit-calculator)
+- [ ] Deploy to production domain (e.g., taxkobo.com/pit-calculator)
 - [ ] Submit to Google Search Console
 - [ ] Post on Nigerian freelancer communities (Twitter, Reddit r/Nigeria, Nairaland)
 - [ ] Run Twitter thread explaining PIT calculation (link to calculator)
@@ -536,5 +536,5 @@ calculatePIT({
 ## Document History
 - **Version**: 1.0
 - **Date**: 2025-01-05
-- **Author**: Spec for Nerozz PIT Calculator MVP
+- **Author**: Spec for TaxKobo PIT Calculator MVP
 - **Status**: Ready for development

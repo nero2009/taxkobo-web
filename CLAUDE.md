@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Nerozz** is a tax compliance SaaS for Nigerian freelancers earning foreign income. The platform helps freelancers track multi-currency income, calculate Personal Income Tax (PIT), manage VAT thresholds, store WHT certificates, and generate filing-ready documents for Nigerian tax portals (LIRS e-Tax and FIRS TaxPro-Max).
+**TaxKobo** is a tax compliance SaaS for Nigerian freelancers earning foreign income. The platform helps freelancers track multi-currency income, calculate Personal Income Tax (PIT), manage VAT thresholds, store WHT certificates, and generate filing-ready documents for Nigerian tax portals (LIRS e-Tax and FIRS TaxPro-Max).
 
 ## Business Context & Tax Rules
 

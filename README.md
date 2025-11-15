@@ -92,4 +92,4 @@ Based on **PITA 2025 (Fifth Schedule)**:
 
 ## License
 
-Part of the Nerozz tax compliance platform for Nigerian freelancers.
+Part of the TaxKobo tax compliance platform for Nigerian freelancers.

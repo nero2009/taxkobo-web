@@ -1,7 +1,7 @@
 
-# Nigeria Freelancer Tax & SaaS Plan — *Nerozz* (Business Name)  
-**Owner:** Tejumola “Tej” Animashaun • **Residence:** Lagos, Nigeria • **Date:** 3 Nov 2025  
-**Use‑case:** Foreign‑paid freelance software engineer earning **€1,000/month** via CAC **Business Name** (“Nerozz”) and transferring to personal account.
+# Nigeria Freelancer Tax & SaaS Plan — *TaxKobo* (Business Name)
+**Owner:** Tejumola "Tej" Animashaun • **Residence:** Lagos, Nigeria • **Date:** 3 Nov 2025
+**Use‑case:** Foreign‑paid freelance software engineer earning **€1,000/month** via CAC **Business Name** ("TaxKobo") and transferring to personal account.
 
 ---
 
@@ -178,4 +178,4 @@
 
 ---
 
-**Prepared for:** Tej (Nerozz) · **Focus:** Freelancer taxes + SaaS blueprint
+**Prepared for:** Tej (TaxKobo) · **Focus:** Freelancer taxes + SaaS blueprint
