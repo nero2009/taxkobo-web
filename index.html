@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nigerian PIT Calculator 2025 | Nerozz - Free Tax Calculator for Freelancers</title>
+    <meta name="description" content="Free Personal Income Tax (PIT) calculator for Nigerian freelancers earning foreign income. Calculate your 2025 tax liability in 30 seconds with multi-currency support.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'naira-green': '#008751',
+                        'naira-dark': '#005a34',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .naira-symbol::before {
+            content: '₦';
+        }
+
+        .calculation-step {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .calculation-step:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-5xl mx-auto px-4 py-6">
+            <div class="text-center">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                    Calculate Your 2025 PIT in 30 Seconds
+                </h1>
+                <p class="text-lg text-gray-600">
+                    Free calculator for Nigerian freelancers earning foreign income
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8 md:py-12">
+
+        <!-- Worked Example Card -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-lg p-6 mb-8">
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <h3 class="text-sm font-semibold text-green-800 uppercase tracking-wide mb-2">Example Calculation</h3>
+                    <h2 class="text-xl font-bold text-gray-900 mb-3">Sarah's 2025 PIT</h2>
+                    <div class="space-y-1 text-gray-700">
+                        <p><span class="font-medium">Income:</span> €12,000/year (~₦1.7M/month at ₦1,710)</p>
+                        <p><span class="font-medium">PIT due:</span> <span class="text-xl font-bold text-green-700">₦3,682,592</span></p>
+                        <p><span class="font-medium">Effective rate:</span> 17.9%</p>
+                    </div>
+                </div>
+                <button
+                    id="try-example-btn"
+                    class="ml-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap"
+                >
+                    Try This →
+                </button>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+
+            <!-- Calculator Form -->
+            <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Calculate Your PIT</h2>
+
+                <form id="pit-calculator-form" class="space-y-6">
+
+                    <!-- Gross Income -->
+                    <div>
+                        <label for="gross-income" class="block text-sm font-medium text-gray-700 mb-2">
+                            What was your total income last year?
+                        </label>
+                        <input
+                            type="number"
+                            id="gross-income"
+                            name="gross-income"
+                            step="0.01"
+                            min="1"
+                            max="999999999"
+                            placeholder="e.g., 12000"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            required
+                        >
+                        <p class="mt-1 text-sm text-gray-500">Enter your gross receipts before any deductions</p>
+                    </div>
+
+                    <!-- Currency -->
+                    <div>
+                        <label for="currency" class="block text-sm font-medium text-gray-700 mb-2">
+                            Currency
+                        </label>
+                        <select
+                            id="currency"
+                            name="currency"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            required
+                        >
+                            <option value="">Select currency...</option>
+                            <option value="EUR" selected>EUR (€)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="GBP">GBP (£)</option>
+                            <option value="NGN">NGN (₦)</option>
+                        </select>
+                    </div>
+
+                    <!-- Exchange Rate (conditional) -->
+                    <div id="exchange-rate-container" class="hidden">
+                        <label for="exchange-rate" class="block text-sm font-medium text-gray-700 mb-2">
+                            Average exchange rate (1 <span id="currency-label">EUR</span> = ? NGN)
+                        </label>
+                        <input
+                            type="number"
+                            id="exchange-rate"
+                            name="exchange-rate"
+                            step="0.01"
+                            min="0.01"
+                            max="10000"
+                            placeholder="e.g., 1710"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                        <p class="mt-1 text-sm text-gray-500">
+                            Use the average rate from your transaction dates.
+                            <a href="https://www.cbn.gov.ng/rates/" target="_blank" class="text-green-600 hover:text-green-700 underline">Get rates →</a>
+                        </p>
+                        <!-- NGN Equivalent Display -->
+                        <div id="ngn-equivalent" class="mt-2 hidden">
+                            <p class="text-sm font-medium text-gray-700">
+                                = <span id="ngn-amount" class="text-green-700 font-bold"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Calculate Button -->
+                    <button
+                        type="submit"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-md transition-colors text-lg"
+                    >
+                        Calculate My PIT
+                    </button>
+                </form>
+
+                <!-- Trust Signals -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <p class="text-xs text-gray-500 text-center">
+                        Calculations based on <span class="font-medium">PITA 2025 (Fifth Schedule)</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Results Section (Initially Hidden) -->
+            <div id="results-section" class="hidden">
+
+                <!-- Main Result Card -->
+                <div class="bg-gradient-to-br from-green-600 to-emerald-700 text-white rounded-lg shadow-lg p-8 mb-6">
+                    <h3 class="text-sm font-semibold uppercase tracking-wide opacity-90 mb-2">Your Estimated PIT for 2025</h3>
+                    <div class="text-5xl font-bold mb-4" id="pit-result">₦0</div>
+                    <div class="h-1 bg-white/30 rounded mb-4"></div>
+                    <p class="text-lg opacity-90">Due by: <span class="font-bold">March 31, 2026</span></p>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Effective Rate</p>
+                        <p class="text-xl font-bold text-gray-900" id="effective-rate">0%</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">CRA Benefit</p>
+                        <p class="text-xl font-bold text-gray-900" id="cra-benefit">₦0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4 text-center">
+                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Filing Deadline</p>
+                        <p class="text-sm font-bold text-gray-900">Mar 31<br>2026</p>
+                    </div>
+                </div>
+
+                <!-- Calculation Breakdown (Expandable) -->
+                <div class="bg-white rounded-lg shadow-md">
+                    <button
+                        id="breakdown-toggle"
+                        class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors rounded-t-lg"
+                    >
+                        <span class="font-semibold text-gray-900">Calculation Breakdown</span>
+                        <svg id="breakdown-icon" class="w-5 h-5 text-gray-500 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <div id="breakdown-content" class="hidden px-6 pb-6">
+                        <div class="space-y-3 text-sm" id="breakdown-details">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VAT Threshold Note -->
+                <div id="vat-notice" class="mt-4 hidden">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-blue-800">
+                            <span class="font-medium">Good news:</span> Your income is below the ₦25M VAT registration threshold.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Conversion CTA -->
+        <div id="conversion-cta" class="mt-12 hidden">
+            <div class="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg shadow-xl p-8 md:p-10">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl md:text-3xl font-bold mb-3">Track Your Income & Automate This Calculation</h2>
+                    <p class="text-lg opacity-90">Instead of manual calculations, let Nerozz:</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4 mb-8 max-w-3xl mx-auto">
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Auto-track multi-currency receipts year-round</span>
+                    </div>
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Calculate PIT in real-time as you earn</span>
+                    </div>
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Store WHT certificates & expense receipts</span>
+                    </div>
+                    <div class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Generate LIRS filing documents in one click</span>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button class="bg-white text-green-600 hover:bg-gray-100 font-bold py-4 px-8 rounded-md text-lg transition-colors inline-flex items-center">
+                        Get Started Free
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </button>
+                    <p class="mt-3 text-sm opacity-90">No credit card required</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-16">
+        <div class="max-w-5xl mx-auto px-4 py-8">
+            <!-- Disclaimer -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <p class="text-sm text-gray-700">
+                    <span class="font-medium">⚠️ Disclaimer:</span> This calculator provides estimates for informational purposes only.
+                    Actual tax liability may vary based on your specific circumstances. Consult a licensed tax professional or use our full
+                    platform for accurate filing documents. Not a substitute for professional tax advice.
+                </p>
+            </div>
+
+            <div class="text-center text-sm text-gray-600">
+                <p>&copy; 2025 Nerozz. Built for Nigerian freelancers earning foreign income.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="calculator.js"></script>
+
+</body>
+</html>
